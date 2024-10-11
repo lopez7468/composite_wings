@@ -1,7 +1,25 @@
 
 import numpy as np
 
-def CLT(myE11,myE22,myG12,myNu12,myLaminate,myLaminateThickness,myPlyNumber):
+def CLT(myE11,myE22,myG12,myNu12,myLaminate,myLaminateThickness,myPlyNumber, schedule_dict):
+
+#0   row['schedule'],
+#1   row['Angles'],
+#2   material_lib[str(row['schedule'])]['Alpha_1'],
+#3  material_lib[str(row['schedule'])]['Alpha_2'], 
+#4   material_lib[str(row['schedule'])]['E_11'],
+#5   material_lib[str(row['schedule'])]['E_12'], 
+#6   material_lib[str(row['schedule'])]['V_12'], 
+#7   material_lib[str(row['schedule'])]['G_12'], 
+#8   material_lib[str(row['schedule'])]['thickness'],
+#9   material_lib[str(row['schedule'])]['density'] ]  
+
+
+
+
+
+
+#def CLT(schedule_dict):
     #--------------------------------------------------------------------------
     #
     # This function calculates the ABD Composite Stiffness Matrix Components
@@ -9,16 +27,24 @@ def CLT(myE11,myE22,myG12,myNu12,myLaminate,myLaminateThickness,myPlyNumber):
     #
     #--------------------------------------------------------------------------
 
-    i=0    
-    myThickness = myPlyNumber*myLaminateThickness
-    Z = []
-    Z.append(-myThickness/2.0)
+        
     
-    for j in range(1,myPlyNumber+1,1):
-        Z.append(Z[j-1]+myLaminateThickness)
+    Z = []
+    Z.append(- sum(laminate_thickness)/2)
+    
+    laminate_thickness = []
+    for item in schedule_dict:
+        thickness = schedule_dict[item][9]
+
+        laminate_thickness.append(thickness)
+
+    
+
+    for item in laminate_thickness:
+        Z.append(Z[-1]+ item)
     
     # Calcuate Reduced Stiffnesses
-    print(Z)
+    
     myQ11 = []
     myQ12 = []
     myQ16 = []
@@ -33,22 +59,32 @@ def CLT(myE11,myE22,myG12,myNu12,myLaminate,myLaminateThickness,myPlyNumber):
     myQ26_S = []
     myQ66_S = []
     
-    for i in range(0,1,1):
-        myQ11.append((myE11**2)/(myE11-myNu12**2*myE22))
-        myQ12.append((myNu12*myE11*myE22)/(myE11-myNu12**2*myE22))
+    for item in schedule_dict:
+        e_11 = schedule_dict[item][4]
+        e_22 = schedule_dict[item][5]
+        v_12 = schedule_dict[item][6]
+        g_12 = schedule_dict[item][7]
+
+
+
+        myQ11.append((e_11**2)/(e_11-v_12**2*e_22))
+        myQ12.append((v_12*e_11*e_22)/(e_11-v_12**2*e_22))
         myQ16.append(0)
-        myQ22.append((myE11*myE22)/(myE11-myNu12**2*myE22))
+        myQ22.append((e_11*e_22)/(e_11-v_12**2*e_22))
         myQ26.append(0)
-        myQ66.append(myG12)
+        myQ66.append(g_12)
     
     i=0    
-    for j in range(0,myPlyNumber,1):
-        myQ11_S.append(myQ11[i]*np.cos(myLaminate[j]*np.pi/180.0)**4 + 2*(myQ12[i]+2*myQ66[i])*(np.cos(myLaminate[j]*np.pi/180.0))**2*(np.sin(myLaminate[j]*np.pi/180.0))**2 + myQ22[i]*(np.sin(myLaminate[j]*np.pi/180.0))**4)
-        myQ12_S.append(myQ12[i]*((np.cos(myLaminate[j]*np.pi/180.0)**4)+(np.sin(myLaminate[j]*np.pi/180.0)**4))+ (myQ11[i]+myQ22[i]-4*myQ66[i])*np.cos(myLaminate[j]*np.pi/180.0)**2*np.sin(myLaminate[j]*np.pi/180.0)**2)
-        myQ16_S.append((myQ11[i]-myQ12[i]-2*myQ66[i])*np.cos(myLaminate[j]*np.pi/180.0)**3*np.sin(myLaminate[j]*np.pi/180.0) - (myQ22[i] - myQ12[i] - 2*myQ66[i])*np.cos(myLaminate[j]*np.pi/180.0)*np.sin(myLaminate[j]*np.pi/180.0)**3)
-        myQ22_S.append(myQ11[i]*np.sin(myLaminate[j]*np.pi/180.0)**4 + 2*(myQ12[i]+2*myQ66[i])*(np.cos(myLaminate[j]*np.pi/180.0))**2*(np.sin(myLaminate[j]*np.pi/180.0))**2 + myQ22[i]*(np.cos(myLaminate[j]*np.pi/180.0))**4)
-        myQ26_S.append((myQ11[i]-myQ12[i]-2*myQ66[i])*np.cos(myLaminate[j]*np.pi/180.0)*np.sin(myLaminate[j]*np.pi/180.0)**3 - (myQ22[i] - myQ12[i] - 2*myQ66[i])*np.cos(myLaminate[j]*np.pi/180.0)**3*np.sin(myLaminate[j]*np.pi/180.0))
-        myQ66_S.append((myQ11[i] + myQ22[i] - 2*myQ12[i] - 2*myQ66[i])*np.cos(myLaminate[j]*np.pi/180.0)**2*np.sin(myLaminate[j]*np.pi/180.0)**2 + myQ66[i]*(np.cos(myLaminate[j]*np.pi/180.0)**4+np.sin(myLaminate[j]*np.pi/180.0)**4))
+    for item in schedule_dict:
+
+        angle = schedule_dict[item][1]
+
+        myQ11_S.append(myQ11[i]*np.cos(angle*np.pi/180.0)**4 + 2*(myQ12[i]+2*myQ66[i])*(np.cos(angle*np.pi/180.0))**2*(np.sin(angle*np.pi/180.0))**2 + myQ22[i]*(np.sin(angle*np.pi/180.0))**4)
+        myQ12_S.append(myQ12[i]*((np.cos(angle*np.pi/180.0)**4)+(np.sin(angle*np.pi/180.0)**4))+ (myQ11[i]+myQ22[i]-4*myQ66[i])*np.cos(angle*np.pi/180.0)**2*np.sin(angle*np.pi/180.0)**2)
+        myQ16_S.append((myQ11[i]-myQ12[i]-2*myQ66[i])*np.cos(angle*np.pi/180.0)**3*np.sin(angle*np.pi/180.0) - (myQ22[i] - myQ12[i] - 2*myQ66[i])*np.cos(angle*np.pi/180.0)*np.sin(angle*np.pi/180.0)**3)
+        myQ22_S.append(myQ11[i]*np.sin(angle*np.pi/180.0)**4 + 2*(myQ12[i]+2*myQ66[i])*(np.cos(angle*np.pi/180.0))**2*(np.sin(angle*np.pi/180.0))**2 + myQ22[i]*(np.cos(angle*np.pi/180.0))**4)
+        myQ26_S.append((myQ11[i]-myQ12[i]-2*myQ66[i])*np.cos(angle*np.pi/180.0)*np.sin(angle*np.pi/180.0)**3 - (myQ22[i] - myQ12[i] - 2*myQ66[i])*np.cos(angle*np.pi/180.0)**3*np.sin(angle*np.pi/180.0))
+        myQ66_S.append((myQ11[i] + myQ22[i] - 2*myQ12[i] - 2*myQ66[i])*np.cos(angle*np.pi/180.0)**2*np.sin(angle*np.pi/180.0)**2 + myQ66[i]*(np.cos(angle*np.pi/180.0)**4+np.sin(angle*np.pi/180.0)**4))
     
     
     

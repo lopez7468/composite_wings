@@ -14,7 +14,7 @@ myG12 = 5555                         # Laminate G12 [MPa]
         
 
 
-myLaminate = [45,-45,0,90,90,0,-45,45]
+myLaminate = [45,-45,0, 0]
 myPlyNumber = len(myLaminate)
 myLaminateThickness = 0.125
 
@@ -22,4 +22,4 @@ myLaminateThickness = 0.125
 A11,A12,A16,A22,A26,A66,B11,B12,B16,B22,B26,B66,D11,D12,D16,D22,D26,D66 = CLT(myE11,myE22,myG12,myNu12,myLaminate,myLaminateThickness,myPlyNumber)
         
         
-print(A11,A12,A16,A22,A26,A66,B11,B12,B16,B22,B26,B66,D11,D12,D16,D22,D26,D66)
+#print(A11,A12,A16,A22,A26,A66,B11,B12,B16,B22,B26,B66,D11,D12,D16,D22,D26,D66)
