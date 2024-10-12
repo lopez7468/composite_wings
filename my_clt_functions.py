@@ -1,7 +1,7 @@
 
 import numpy as np
 
-def CLT(myE11,myE22,myG12,myNu12,myLaminate,myLaminateThickness,myPlyNumber, schedule_dict):
+def myCLT( schedule_dict):
 
 #0   row['schedule'],
 #1   row['Angles'],
@@ -29,20 +29,20 @@ def CLT(myE11,myE22,myG12,myNu12,myLaminate,myLaminateThickness,myPlyNumber, sch
 
         
     
-    Z = []
-    Z.append(- sum(laminate_thickness)/2)
+    
     
     laminate_thickness = []
     for item in schedule_dict:
-        thickness = schedule_dict[item][9]
+        thickness = schedule_dict[item][8]
 
         laminate_thickness.append(thickness)
 
-    
+    Z = []
+    Z.append(- sum(laminate_thickness)/2)
 
     for item in laminate_thickness:
         Z.append(Z[-1]+ item)
-    
+    #print(Z)
     # Calcuate Reduced Stiffnesses
     
     myQ11 = []
@@ -98,7 +98,7 @@ def CLT(myE11,myE22,myG12,myNu12,myLaminate,myLaminateThickness,myPlyNumber, sch
     A26_v = []
     A66_v = []
     i = 1
-    for j in range(0,myPlyNumber,1):
+    for j in range(0,len(schedule_dict),1):
         A11_v.append(myQ11_S[j]*(Z[i]-Z[i-1]))
         A12_v.append(myQ12_S[j]*(Z[i]-Z[i-1]))
         A16_v.append(myQ16_S[j]*(Z[i]-Z[i-1]))
@@ -124,7 +124,7 @@ def CLT(myE11,myE22,myG12,myNu12,myLaminate,myLaminateThickness,myPlyNumber, sch
     B26_v = []
     B66_v = []
     i = 1
-    for j in range(0,myPlyNumber,1):
+    for j in range(0,len(schedule_dict),1):
         B11_v.append(0.5*myQ11_S[j]*(Z[i]**2-Z[i-1]**2))
         B12_v.append(0.5*myQ12_S[j]*(Z[i]**2-Z[i-1]**2))
         B16_v.append(0.5*myQ16_S[j]*(Z[i]**2-Z[i-1]**2))
@@ -153,7 +153,7 @@ def CLT(myE11,myE22,myG12,myNu12,myLaminate,myLaminateThickness,myPlyNumber, sch
     D26_v = []
     D66_v = []
     i = 1
-    for j in range(0,myPlyNumber,1):
+    for j in range(0,len(schedule_dict),1):
         D11_v.append((1/3.0)*myQ11_S[j]*(Z[i]**3-Z[i-1]**3))
         D12_v.append((1/3.0)*myQ12_S[j]*(Z[i]**3-Z[i-1]**3))
         D16_v.append((1/3.0)*myQ16_S[j]*(Z[i]**3-Z[i-1]**3))
@@ -174,7 +174,7 @@ def CLT(myE11,myE22,myG12,myNu12,myLaminate,myLaminateThickness,myPlyNumber, sch
 
 #-----------------------------------------------------------------------------------------------
 
-# def CLT(myE11,myE22,myG12,myNu12,myLaminate,myLaminateThickness,myPlyNumber):
+# def CLT(myE11,myE22,myG12,myNu12,myLaminate,myLaminateThickness,len(schedule_dict)):
 
 
 
